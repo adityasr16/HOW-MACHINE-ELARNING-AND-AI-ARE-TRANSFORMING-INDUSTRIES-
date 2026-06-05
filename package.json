@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "remotion studio src/Root.jsx",
-    "build": "remotion render src/Root.jsx MyVideo out/video.mp4",
+    "start": "remotion studio src/index.js",
+    "build": "remotion render src/index.js UBCReel out/ubc-lgsf-reel.mp4",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,5 +1,6 @@
 import {
   AbsoluteFill,
+  Audio,
   Img,
   Series,
   staticFile,
@@ -7,32 +8,26 @@ import {
   useVideoConfig,
   interpolate,
   spring,
-  Audio,
 } from 'remotion';
 
 export const REEL_FPS = 30;
 
-// Flip to true after generating the voiceover clips into public/vo/
-// (run: python scripts/generate-voiceover.py). Each slide then plays
-// public/vo/<key>.mp3 from its start. See VOICEOVER.md.
-const VOICEOVER = false;
-
 /**
- * Each slide carries its on-screen text, the b-roll background extracted
- * from the uploaded reel, the duration it stays up, and a base zoom.
+ * Slide durations are timed to the uploaded voiceover (public/voiceover.mp3,
+ * ~42.95s). Each `durationInFrames` matches the spoken window for that line,
+ * derived from silence analysis of the narration, so the copy and b-roll
+ * change exactly as the voice moves to the next line.
  *
- * `zoom` is the starting scale of the background. stat1/stat2 use a larger
- * zoom to crop the source's burned-in title text off-screen; every slide
- * uses >= 1.1 so the corner watermark is cropped out too.
- *
- * The matching voiceover script lives in VOICEOVER.md.
+ * `zoom` is the starting scale of the background. stat1/stat2/reason4 use a
+ * larger zoom to crop the source's burned-in title text; every slide uses
+ * >= 1.1 so the corner watermark is cropped out too.
  */
 export const SLIDES = [
   {
     key: 'hook',
     bg: 'bg/hook.jpg',
     zoom: 1.08,
-    durationInFrames: 105,
+    durationInFrames: 115, // 0.00–3.84s
     accent: '#FF6A2C',
     kicker: null,
     title: 'Wood is losing.',
@@ -43,19 +38,18 @@ export const SLIDES = [
     key: 'stat1',
     bg: 'bg/stat1.jpg',
     zoom: 1.5,
-    durationInFrames: 120,
+    durationInFrames: 163, // 3.84–9.27s
     accent: '#FF6A2C',
     kicker: 'STAT #1',
     bigStat: '$10.8B',
     subtitle: 'Lost every year to the U.S. framing labor shortage.',
     footnote: 'HBI / NAHB Construction Labor Market Report, 2025',
-    durationInFramesVO: 140,
   },
   {
     key: 'stat2',
     bg: 'bg/stat2.jpg',
     zoom: 1.5,
-    durationInFrames: 105,
+    durationInFrames: 92, // 9.27–12.35s
     accent: '#FF6A2C',
     kicker: 'STAT #2',
     bigStat: '+41.6%',
@@ -66,7 +60,7 @@ export const SLIDES = [
     key: 'switch',
     bg: 'bg/switch.jpg',
     zoom: 1.14,
-    durationInFrames: 90,
+    durationInFrames: 70, // 12.35–14.68s
     accent: '#4DA3FF',
     kicker: 'So builders are switching to…',
     title: 'LGSF',
@@ -77,7 +71,7 @@ export const SLIDES = [
     key: 'reason1',
     bg: 'bg/reason1.jpg',
     zoom: 1.12,
-    durationInFrames: 120,
+    durationInFrames: 144, // 14.68–19.47s
     accent: '#4DA3FF',
     kicker: 'REASON 1',
     title: 'It frames faster.',
@@ -88,7 +82,7 @@ export const SLIDES = [
     key: 'reason2',
     bg: 'bg/reason2.jpg',
     zoom: 1.12,
-    durationInFrames: 120,
+    durationInFrames: 168, // 19.47–25.06s
     accent: '#4DA3FF',
     kicker: 'REASON 2',
     title: 'It needs fewer hands.',
@@ -99,19 +93,18 @@ export const SLIDES = [
     key: 'reason3',
     bg: 'bg/reason3.jpg',
     zoom: 1.12,
-    durationInFrames: 135,
+    durationInFrames: 185, // 25.06–31.22s
     accent: '#4DA3FF',
     kicker: 'REASON 3',
     title: 'It outlasts wood.',
     subtitle: 'Non-combustible. Termite-proof. 100+ year design life. Lower insurance premiums.',
     footnote: null,
-    durationInFramesVO: 175,
   },
   {
     key: 'reason4',
     bg: 'bg/stat2.jpg',
     zoom: 1.5,
-    durationInFrames: 120,
+    durationInFrames: 142, // 31.22–35.95s
     accent: '#4DA3FF',
     kicker: 'REASON 4',
     title: 'Prices don’t swing.',
@@ -122,25 +115,20 @@ export const SLIDES = [
     key: 'cta',
     bg: 'bg/cta.jpg',
     zoom: 1.12,
-    durationInFrames: 165,
+    durationInFrames: 161, // 35.95–41.33s
     accent: '#FF6A2C',
     kicker: 'Building your first LGSF project?',
     title: 'We’ve detailed 100s of projects.',
     subtitle: 'Across 12 countries. We’d love to help with yours.',
     footnote: 'ubcbim.com · DM us to get started',
-    durationInFramesVO: 200,
   },
 ];
 
-// When the voiceover is on, long-narration slides use their VO-fit length.
-const slideFrames = (s) =>
-  VOICEOVER ? s.durationInFramesVO ?? s.durationInFrames : s.durationInFrames;
-
-// Branded logo outro shown after the last slide.
-export const END_CARD_FRAMES = 75;
+// Logo outro — timed to "UBC BIM. Unique Building Concepts." (41.33–42.95s).
+export const END_CARD_FRAMES = 49;
 
 export const REEL_DURATION =
-  SLIDES.reduce((sum, s) => sum + slideFrames(s), 0) + END_CARD_FRAMES;
+  SLIDES.reduce((sum, s) => sum + s.durationInFrames, 0) + END_CARD_FRAMES;
 
 const BG = '#0C1118';
 const FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
@@ -154,17 +142,17 @@ const useReveal = (delay = 0) => {
     frame: frame - delay,
     fps,
     config: { damping: 200 },
-    durationInFrames: 22,
+    durationInFrames: 20,
   });
   const exit = interpolate(
     frame,
-    [durationInFrames - 12, durationInFrames],
+    [durationInFrames - 10, durationInFrames],
     [1, 0],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
   return {
     opacity: enter * exit,
-    transform: `translateY(${interpolate(enter, [0, 1], [28, 0])}px)`,
+    transform: `translateY(${interpolate(enter, [0, 1], [26, 0])}px)`,
   };
 };
 
@@ -218,9 +206,9 @@ const Kicker = ({ children, accent }) => {
 };
 
 const Slide = ({ data }) => {
-  const titleR = useReveal(8);
-  const subR = useReveal(16);
-  const footR = useReveal(24);
+  const titleR = useReveal(6);
+  const subR = useReveal(12);
+  const footR = useReveal(18);
   const accentBar = useReveal(0);
 
   return (
@@ -323,7 +311,7 @@ const Slide = ({ data }) => {
 // Branded outro: UBC BIM logo on a clean background.
 const EndCard = () => {
   const frame = useCurrentFrame();
-  const logo = spring({ frame, fps: REEL_FPS, config: { damping: 200 }, durationInFrames: 26 });
+  const logo = spring({ frame, fps: REEL_FPS, config: { damping: 200 }, durationInFrames: 22 });
   const scale = interpolate(logo, [0, 1], [0.9, 1]);
   return (
     <AbsoluteFill
@@ -336,11 +324,7 @@ const EndCard = () => {
     >
       <Img
         src={staticFile('logo.jpg')}
-        style={{
-          width: '74%',
-          opacity: logo,
-          transform: `scale(${scale})`,
-        }}
+        style={{ width: '74%', opacity: logo, transform: `scale(${scale})` }}
       />
       <div
         style={{
@@ -375,16 +359,17 @@ const ProgressBar = () => {
 export const Reel = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
+      {/* Synced narration (American VO, ~42.95s) */}
+      <Audio src={staticFile('voiceover.mp3')} />
+
       <Series>
         {SLIDES.map((data) => (
-          <Series.Sequence key={data.key} durationInFrames={slideFrames(data)}>
+          <Series.Sequence key={data.key} durationInFrames={data.durationInFrames}>
             <Slide data={data} />
-            {VOICEOVER && <Audio src={staticFile(`vo/${data.key}.mp3`)} />}
           </Series.Sequence>
         ))}
         <Series.Sequence durationInFrames={END_CARD_FRAMES}>
           <EndCard />
-          {VOICEOVER && <Audio src={staticFile('vo/outro.mp3')} />}
         </Series.Sequence>
       </Series>
 

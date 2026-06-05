@@ -18,7 +18,8 @@ at the bottom of `src/Reel.jsx`.
 | 6 | Reason 2 | 0:18–0:22 | "Reason two — it needs fewer hands. Less labor, faster training, fewer field calls." |
 | 7 | Reason 3 | 0:22–0:26.5 | "Reason three — it outlasts wood. Non-combustible, termite-proof, built to last a hundred years." |
 | 8 | Reason 4 | 0:26.5–0:30.5 | "Reason four — prices stay steady. Steel doesn't swing seventy percent in a year." |
-| 9 | CTA | 0:30.5–0:36 | "Building your first LGSF project? We've detailed seven hundred eighty-three of them across twelve countries. Let's build yours. UBC BIM." |
+| 9 | CTA | 0:30.5–0:36 | "Building your first LGSF project? We've detailed hundreds of them across twelve countries. Let's build yours." |
+| — | Logo outro | 0:36–0:38.5 | (logo card — no narration, or a soft "UBC BIM. Unique Building Concepts.") |
 
 ## Full read (one paragraph, for TTS)
 
@@ -30,5 +31,5 @@ at the bottom of `src/Reel.jsx`.
 > training, fewer field calls. Reason three — it outlasts wood: non-combustible,
 > termite-proof, built to last a hundred years. Reason four — prices stay steady;
 > steel doesn't swing seventy percent in a year. Building your first LGSF project?
-> We've detailed seven hundred eighty-three of them across twelve countries. Let's
-> build yours. UBC BIM.
+> We've detailed hundreds of them across twelve countries. Let's build yours.
+> UBC BIM — Unique Building Concepts.

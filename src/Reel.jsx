@@ -12,6 +12,11 @@ import {
 
 export const REEL_FPS = 30;
 
+// Flip to true after generating the voiceover clips into public/vo/
+// (run: python scripts/generate-voiceover.py). Each slide then plays
+// public/vo/<key>.mp3 from its start. See VOICEOVER.md.
+const VOICEOVER = false;
+
 /**
  * Each slide carries its on-screen text, the b-roll background extracted
  * from the uploaded reel, the duration it stays up, and a base zoom.
@@ -44,6 +49,7 @@ export const SLIDES = [
     bigStat: '$10.8B',
     subtitle: 'Lost every year to the U.S. framing labor shortage.',
     footnote: 'HBI / NAHB Construction Labor Market Report, 2025',
+    durationInFramesVO: 140,
   },
   {
     key: 'stat2',
@@ -99,11 +105,12 @@ export const SLIDES = [
     title: 'It outlasts wood.',
     subtitle: 'Non-combustible. Termite-proof. 100+ year design life. Lower insurance premiums.',
     footnote: null,
+    durationInFramesVO: 175,
   },
   {
     key: 'reason4',
-    bg: 'bg/reason4.jpg',
-    zoom: 1.12,
+    bg: 'bg/stat2.jpg',
+    zoom: 1.5,
     durationInFrames: 120,
     accent: '#4DA3FF',
     kicker: 'REASON 4',
@@ -118,16 +125,22 @@ export const SLIDES = [
     durationInFrames: 165,
     accent: '#FF6A2C',
     kicker: 'Building your first LGSF project?',
-    title: 'We’ve detailed 783 of them.',
+    title: 'We’ve detailed 100s of projects.',
     subtitle: 'Across 12 countries. We’d love to help with yours.',
-    footnote: 'UBC BIM · ubcbim.com · DM us to get started',
+    footnote: 'ubcbim.com · DM us to get started',
+    durationInFramesVO: 200,
   },
 ];
 
-export const REEL_DURATION = SLIDES.reduce(
-  (sum, s) => sum + s.durationInFrames,
-  0
-);
+// When the voiceover is on, long-narration slides use their VO-fit length.
+const slideFrames = (s) =>
+  VOICEOVER ? s.durationInFramesVO ?? s.durationInFrames : s.durationInFrames;
+
+// Branded logo outro shown after the last slide.
+export const END_CARD_FRAMES = 75;
+
+export const REEL_DURATION =
+  SLIDES.reduce((sum, s) => sum + slideFrames(s), 0) + END_CARD_FRAMES;
 
 const BG = '#0C1118';
 const FONT = '"Helvetica Neue", Helvetica, Arial, sans-serif';
@@ -307,6 +320,44 @@ const Slide = ({ data }) => {
   );
 };
 
+// Branded outro: UBC BIM logo on a clean background.
+const EndCard = () => {
+  const frame = useCurrentFrame();
+  const logo = spring({ frame, fps: REEL_FPS, config: { damping: 200 }, durationInFrames: 26 });
+  const scale = interpolate(logo, [0, 1], [0.9, 1]);
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: '#FFFFFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: FONT,
+      }}
+    >
+      <Img
+        src={staticFile('logo.jpg')}
+        style={{
+          width: '74%',
+          opacity: logo,
+          transform: `scale(${scale})`,
+        }}
+      />
+      <div
+        style={{
+          opacity: logo,
+          marginTop: 10,
+          color: '#1E2A57',
+          fontSize: 40,
+          fontWeight: 700,
+          letterSpacing: 2,
+        }}
+      >
+        ubcbim.com
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 // Thin progress bar across the top of the whole reel.
 const ProgressBar = () => {
   const frame = useCurrentFrame();
@@ -326,23 +377,18 @@ export const Reel = () => {
     <AbsoluteFill style={{ backgroundColor: BG }}>
       <Series>
         {SLIDES.map((data) => (
-          <Series.Sequence
-            key={data.key}
-            durationInFrames={data.durationInFrames}
-          >
+          <Series.Sequence key={data.key} durationInFrames={slideFrames(data)}>
             <Slide data={data} />
+            {VOICEOVER && <Audio src={staticFile(`vo/${data.key}.mp3`)} />}
           </Series.Sequence>
         ))}
+        <Series.Sequence durationInFrames={END_CARD_FRAMES}>
+          <EndCard />
+          {VOICEOVER && <Audio src={staticFile('vo/outro.mp3')} />}
+        </Series.Sequence>
       </Series>
 
       <ProgressBar />
-
-      {/*
-        Voiceover: drop an mp3 at public/voiceover.mp3 and uncomment.
-        The narration script (American, conversational) is in VOICEOVER.md,
-        timed slide-by-slide to the durations above.
-      */}
-      {/* <Audio src={staticFile('voiceover.mp3')} /> */}
     </AbsoluteFill>
   );
 };

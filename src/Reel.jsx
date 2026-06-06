@@ -14,20 +14,24 @@ export const REEL_FPS = 30;
 
 /**
  * Slide durations are timed to the uploaded voiceover (public/voiceover.mp3,
- * ~42.95s). Each `durationInFrames` matches the spoken window for that line,
- * derived from silence analysis of the narration, so the copy and b-roll
- * change exactly as the voice moves to the next line.
+ * ~62.46s). Each `durationInFrames` matches the spoken window for that line,
+ * derived from silence analysis of the narration, so copy + b-roll change
+ * exactly as the voice moves to the next line.
  *
  * `zoom` is the starting scale of the background. stat1/stat2/reason4 use a
  * larger zoom to crop the source's burned-in title text; every slide uses
- * >= 1.1 so the corner watermark is cropped out too.
+ * >= 1.1 so any corner watermark is cropped out too.
+ *
+ * reason5 / reason6 backgrounds are TEMPORARY placeholders until the real
+ * Shutterstock photos arrive — overwrite public/bg/reason5.jpg and
+ * public/bg/reason6.jpg and re-render; no code change needed.
  */
 export const SLIDES = [
   {
     key: 'hook',
     bg: 'bg/hook.jpg',
     zoom: 1.08,
-    durationInFrames: 115, // 0.00–3.84s
+    durationInFrames: 116, // 0.00–3.86s
     accent: '#FF6A2C',
     kicker: null,
     title: 'Wood is losing.',
@@ -38,7 +42,7 @@ export const SLIDES = [
     key: 'stat1',
     bg: 'bg/stat1.jpg',
     zoom: 1.5,
-    durationInFrames: 163, // 3.84–9.27s
+    durationInFrames: 144, // 3.86–8.66s
     accent: '#FF6A2C',
     kicker: 'STAT #1',
     bigStat: '$10.8B',
@@ -49,7 +53,7 @@ export const SLIDES = [
     key: 'stat2',
     bg: 'bg/stat2.jpg',
     zoom: 1.5,
-    durationInFrames: 92, // 9.27–12.35s
+    durationInFrames: 136, // 8.66–13.18s
     accent: '#FF6A2C',
     kicker: 'STAT #2',
     bigStat: '+41.6%',
@@ -60,7 +64,7 @@ export const SLIDES = [
     key: 'switch',
     bg: 'bg/switch.jpg',
     zoom: 1.14,
-    durationInFrames: 70, // 12.35–14.68s
+    durationInFrames: 94, // 13.18–16.32s
     accent: '#4DA3FF',
     kicker: 'So builders are switching to…',
     title: 'LGSF',
@@ -71,7 +75,7 @@ export const SLIDES = [
     key: 'reason1',
     bg: 'bg/reason1.jpg',
     zoom: 1.12,
-    durationInFrames: 144, // 14.68–19.47s
+    durationInFrames: 150, // 16.32–21.31s
     accent: '#4DA3FF',
     kicker: 'REASON 1',
     title: 'It frames faster.',
@@ -82,7 +86,7 @@ export const SLIDES = [
     key: 'reason2',
     bg: 'bg/reason2.jpg',
     zoom: 1.12,
-    durationInFrames: 168, // 19.47–25.06s
+    durationInFrames: 172, // 21.31–27.04s
     accent: '#4DA3FF',
     kicker: 'REASON 2',
     title: 'It needs fewer hands.',
@@ -93,7 +97,7 @@ export const SLIDES = [
     key: 'reason3',
     bg: 'bg/reason3.jpg',
     zoom: 1.12,
-    durationInFrames: 185, // 25.06–31.22s
+    durationInFrames: 193, // 27.04–33.49s
     accent: '#4DA3FF',
     kicker: 'REASON 3',
     title: 'It outlasts wood.',
@@ -104,7 +108,7 @@ export const SLIDES = [
     key: 'reason4',
     bg: 'bg/stat2.jpg',
     zoom: 1.5,
-    durationInFrames: 142, // 31.22–35.95s
+    durationInFrames: 144, // 33.49–38.29s
     accent: '#4DA3FF',
     kicker: 'REASON 4',
     title: 'Prices don’t swing.',
@@ -112,20 +116,42 @@ export const SLIDES = [
     footnote: null,
   },
   {
+    key: 'reason5',
+    bg: 'bg/reason5.jpg', // PLACEHOLDER — swap with insurance/durability photo
+    zoom: 1.12,
+    durationInFrames: 165, // 38.29–43.78s
+    accent: '#4DA3FF',
+    kicker: 'REASON 5',
+    title: 'Cheaper to insure.',
+    subtitle: 'Insurance runs 30–40% lower than wood-framed construction.',
+    footnote: null,
+  },
+  {
+    key: 'reason6',
+    bg: 'bg/reason6.jpg', // PLACEHOLDER — swap with precision/clean-site photo
+    zoom: 1.12,
+    durationInFrames: 250, // 43.78–52.11s
+    accent: '#4DA3FF',
+    kicker: 'REASON 6',
+    title: 'Precision engineered.',
+    subtitle: 'Panels arrive pre-cut and ready to install — almost no site work, and zero debris to clean up.',
+    footnote: null,
+  },
+  {
     key: 'cta',
     bg: 'bg/cta.jpg',
     zoom: 1.12,
-    durationInFrames: 161, // 35.95–41.33s
+    durationInFrames: 236, // 52.11–60.00s
     accent: '#FF6A2C',
-    kicker: 'Building your first LGSF project?',
-    title: 'We’ve detailed 100s of projects.',
-    subtitle: 'Across 12 countries. We’d love to help with yours.',
+    kicker: 'UBC BIM',
+    title: 'Your one-stop shop for LGSF.',
+    subtitle: 'Design & detailing — regardless of the machine or software you use.',
     footnote: 'ubcbim.com · DM us to get started',
   },
 ];
 
-// Logo outro — timed to "UBC BIM. Unique Building Concepts." (41.33–42.95s).
-export const END_CARD_FRAMES = 49;
+// Logo outro — timed to "Let's build yours. ubcbim dot com." (60.00–62.46s).
+export const END_CARD_FRAMES = 75;
 
 export const REEL_DURATION =
   SLIDES.reduce((sum, s) => sum + s.durationInFrames, 0) + END_CARD_FRAMES;
@@ -313,6 +339,7 @@ const EndCard = () => {
   const frame = useCurrentFrame();
   const logo = spring({ frame, fps: REEL_FPS, config: { damping: 200 }, durationInFrames: 22 });
   const scale = interpolate(logo, [0, 1], [0.9, 1]);
+  const tag = spring({ frame: frame - 8, fps: REEL_FPS, config: { damping: 200 }, durationInFrames: 18 });
   return (
     <AbsoluteFill
       style={{
@@ -322,13 +349,25 @@ const EndCard = () => {
         fontFamily: FONT,
       }}
     >
+      <div
+        style={{
+          opacity: tag,
+          color: '#FF6A2C',
+          fontSize: 44,
+          fontWeight: 800,
+          letterSpacing: 1,
+          marginBottom: 30,
+        }}
+      >
+        Let’s build yours.
+      </div>
       <Img
         src={staticFile('logo.jpg')}
         style={{ width: '74%', opacity: logo, transform: `scale(${scale})` }}
       />
       <div
         style={{
-          opacity: logo,
+          opacity: tag,
           marginTop: 10,
           color: '#1E2A57',
           fontSize: 40,
@@ -359,7 +398,7 @@ const ProgressBar = () => {
 export const Reel = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: BG }}>
-      {/* Synced narration (American VO, ~42.95s) */}
+      {/* Synced narration (American VO, ~62.46s) */}
       <Audio src={staticFile('voiceover.mp3')} />
 
       <Series>
